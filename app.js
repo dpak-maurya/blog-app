@@ -8,10 +8,14 @@ var bodyParser = require("body-parser"),
   express = require("express"),
   app = express();
 
-mongoose.connect("mongodb://localhost/restful_blog_app", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false
+// mongoose.connect("mongodb://localhost/restful_blog_app", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   useFindAndModify: false
+// });
+mongoose.connect("mongodb+srv://dpak:@dpaknitw@blogcluster-lvcls.mongodb.net/test?retryWrites=true&w=majority",{
+	useNewUrlParser: true,
+     useUnifiedTopology: true
 });
 var blogSchema = new mongoose.Schema({
   title: String,
