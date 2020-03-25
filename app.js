@@ -1,5 +1,8 @@
 var bodyParser = require("body-parser"),
   mongoose = require("mongoose"),
+  passport = require("passport"),
+  LocalStrategy = require("passport-local"),
+  passportLocalMongoose = require("passport-local-mongoose"),
   expressSanitizer = require("express-sanitizer"),
   methodOverride = require("method-override"),
   express = require("express"),
@@ -10,13 +13,6 @@ mongoose.connect("mongodb://localhost/restful_blog_app", {
   useUnifiedTopology: true,
   useFindAndModify: false
 });
-app.use(express.static("public"));
-app.set("view engine", "ejs");
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressSanitizer());
-app.use(methodOverride("_method"));
-
 var blogSchema = new mongoose.Schema({
   title: String,
   image: String,
@@ -28,6 +24,43 @@ var blogSchema = new mongoose.Schema({
   }
 });
 var Blog = mongoose.model("Blog", blogSchema);
+
+var UserSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
+
+UserSchema.plugin(passportLocalMongoose);
+var User = mongoose.model("User", UserSchema);
+
+app.use(
+  require("express-session")({
+    secret: "i am learning web dev using node js express",
+    resave: false,
+    saveUninitialized: false
+  })
+);
+
+app.use(express.static("public"));
+app.set("view engine", "ejs");
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSanitizer());
+app.use(methodOverride("_method"));
+
 app.get("/", function(req, res) {
   res.redirect("/blogs");
 });
@@ -63,7 +96,13 @@ app.get("/blogs/:id", function(req, res) {
     }
   });
 });
-app.get("/blogs/:id/edit", function(req, res) {
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.render("login");
+}
+app.get("/blogs/:id/edit", isLoggedIn, function(req, res) {
   Blog.findById(req.params.id, function(err, foundBlog) {
     if (err) {
       res.redirect("/blogs");
@@ -87,8 +126,13 @@ app.put("/blogs/:id", function(req, res) {
     }
   });
 });
-
-app.delete("/blogs/:id", function(req, res) {
+function isLogged(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.render("login");
+}
+app.delete("/blogs/:id", isLoggedIn, function(req, res) {
   Blog.findByIdAndRemove(req.params.id, function(err, user) {
     if (err) {
       res.send("There was a problem deleting the blog");
@@ -96,6 +140,44 @@ app.delete("/blogs/:id", function(req, res) {
       res.redirect("/blogs");
     }
   });
+});
+
+app.get("/register", function(req, res) {
+  res.render("register");
+});
+
+app.post("/register", function(req, res) {
+  User.register(
+    new User({ username: req.body.username }),
+    req.body.password,
+    function(err, user) {
+      if (err) {
+        console.log(err);
+        return res.render("register");
+      }
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/blogs");
+      });
+    }
+  );
+});
+
+app.get("/login", function(req, res) {
+  res.render("login");
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/blogs",
+    failureRedirect: "/login"
+  }),
+  function(req, res) {}
+);
+
+app.get("/logout", function(req, res) {
+  req.logout();
+  res.redirect("/");
 });
 
 app.listen(8000, function() {
