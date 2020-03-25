@@ -14,8 +14,13 @@ var bodyParser = require("body-parser"),
 //   useFindAndModify: false
 // });
 mongoose.connect("mongodb+srv://dpak:@dpaknitw@blogcluster-lvcls.mongodb.net/test?retryWrites=true&w=majority",{
-	useNewUrlParser: true,
-     useUnifiedTopology: true
+	user: process.env.DB_USER,
+  pass: process.env.DB_PASS,
+  dbName: process.env.DB_NAME,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true
 });
 var blogSchema = new mongoose.Schema({
   title: String,
