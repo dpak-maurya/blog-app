@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+  require('dotenv').config();
+}
+
 var bodyParser = require("body-parser"),
   mongoose = require("mongoose"),
   passport = require("passport"),
@@ -188,6 +192,6 @@ app.get("/logout", function(req, res) {
   res.redirect("/");
 });
 
-app.listen(8000, function() {
-  console.log("server is running");
-});
+module.exports = app;
+
+
