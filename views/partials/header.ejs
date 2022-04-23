@@ -26,9 +26,16 @@
               <i class="search link icon"></i>
             </div>
           </div>
-          <a href="./login" class="item" id="login">Login</a>
-          <a href="./register" class="item" id="register">SignUp </a>
-          <a href="./logout" class="item" id="logout">Logout</a>
+<!--          <a href="./login" class="item" id="login">Login</a>-->
+<!--          <a href="./register" class="item" id="register">SignUp </a>-->
+<!--          <a href="./logout" class="item" id="logout">Logout</a>-->
+          <% if(!currentUser){ %>
+            <span class="<%= typeof page !== 'undefined' && page === 'login' ? 'active' : '' %>"><a href="/login" class="item">Login</a></span>
+            <span class="<%= typeof page !== 'undefined' && page === 'register' ? 'active' : '' %>"><a href="/register" class="item">Sign Up</a></span>
+          <% } else { %>
+            <a href="#" class="item">Signed In As <%= currentUser.username %></a>
+            <a href="/logout" class="item">Logout</a>
+          <% } %>
         </div>
       </div>
     </div>

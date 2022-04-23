@@ -8,13 +8,8 @@ var bodyParser = require("body-parser"),
   express = require("express"),
   app = express();
 
-// mongoose.connect("mongodb://localhost/restful_blog_app", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   useFindAndModify: false
-// });
 mongoose.connect("mongodb+srv://dpak:@dpaknitw@blogcluster-lvcls.mongodb.net/test?retryWrites=true&w=majority",{
-	user: process.env.DB_USER,
+  user: process.env.DB_USER,
   pass: process.env.DB_PASS,
   dbName: process.env.DB_NAME,
   useNewUrlParser: true,
@@ -54,6 +49,10 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(function (req, res, next) {
+  res.locals.currentUser = req.user;
+  next();
+});
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(function(user, done) {
