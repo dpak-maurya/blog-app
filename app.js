@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== "production") {
   require('dotenv').config();
 }
+// have to production setup
 
 var bodyParser = require("body-parser"),
   mongoose = require("mongoose"),
