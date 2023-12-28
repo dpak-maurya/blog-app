@@ -13,15 +13,21 @@ var bodyParser = require("body-parser"),
   express = require("express"),
   app = express();
 
-mongoose.connect("mongodb+srv://dpak:@dpaknitw@blogcluster-lvcls.mongodb.net/test?retryWrites=true&w=majority",{
-  user: process.env.DB_USER,
-  pass: process.env.DB_PASS,
-  dbName: process.env.DB_NAME,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
-});
+//Set up mongoose connection
+var url = process.env.DATABASEURL;
+mongoose
+  .connect(url.toString(), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+  .then(() => {
+    console.log("Connected to DB!");
+  })
+  .catch((err) => {
+    console.log("ERROR:", err.message);
+  });
+
 var blogSchema = new mongoose.Schema({
   title: String,
   image: String,
